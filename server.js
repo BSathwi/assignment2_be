@@ -10,8 +10,19 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Health check endpoint
+app.get('/', (req, res) => {
+  res.json({ status: 'ok', message: 'Server is running' });
+});
+
 // Routes
 app.use('/movies', movieRoutes);
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: 'Something went wrong!' });
+});
 
 // Database connection
 mongoose.connect(process.env.MONGODB_URI)
@@ -25,4 +36,5 @@ mongoose.connect(process.env.MONGODB_URI)
   })
   .catch(err => {
     console.error('Database connection error:', err);
+    process.exit(1);
   });
